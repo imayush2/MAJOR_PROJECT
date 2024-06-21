@@ -22,8 +22,8 @@ const User = require("./models/user.js");
 const userRouter = require("./routes/user.js");
 
 
-//const dbUrl = process.env.ATLASDB_URL;
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.ATLASDB_URL;
+//const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
 //Calling main function 
 main()
@@ -35,8 +35,9 @@ main()
 
 //Creating a database 
 async function main () {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dbUrl);
 }
+
 //ejs templating
 
 app.set("view engine","ejs");
@@ -47,30 +48,29 @@ app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
 
 
-// const store = MongoStore.create({
-//   mongoUrl:dbUrl,
-//   crypto: {
-//       secret : "mysupersecretcode",
-//   },
-//   touchAfter : 24 *3600,
+ const store = MongoStore.create({
+   mongoUrl:dbUrl,
+   crypto: {
+       secret : process.env.SECRET,
+   },
+   touchAfter : 24 *3600,
   
-// });
-// store.on("error",() => {
-//   console.log("ERROR in mongo session store",err);
-// });
+ });
+ store.on("error",() => {
+   console.log("ERROR in mongo session store",err);
+ });
 
 
 const sessionOptions = {
-  //store,
-  secret : "mysupersecretcode",
+  store,
+  secret : process.env.SECRET,
   resave : false,
   saveUninitialized : true,
   cookie : {
       expires : Date.now() + 7*24*60 *60*1000,
       maxAge :  7*24*60 *60*1000,
       httpOnly : true,
-  }, 
-  
+  },
 };
 
 
