@@ -7,9 +7,6 @@ const mongoose = require('mongoose');
 const app = express();
 
 
-
-const dbUrl =process.env.ATLASDB_URL;
-
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
@@ -25,8 +22,12 @@ const User = require("./models/user.js");
 const userRouter = require("./routes/user.js");
 
 
+//const dbUrl = process.env.ATLASDB_URL;
+const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+
 //Calling main function 
-main().then(() => {
+main()
+.then(() => {
   console.log("connected to DB ");
 }).catch(err => {
   console.log(err);
@@ -34,7 +35,7 @@ main().then(() => {
 
 //Creating a database 
 async function main () {
-  await mongoose.connect(dbUrl);
+  await mongoose.connect(MONGO_URL);
 }
 //ejs templating
 
@@ -45,21 +46,23 @@ app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
 
-const store = MongoStore.create({
-  mongoUrl:dbUrl,
-  crypto: {
-      secret : process.env.SECRET,
-  },
-  touchAfter : 24 *3600,
+
+// const store = MongoStore.create({
+//   mongoUrl:dbUrl,
+//   crypto: {
+//       secret : "mysupersecretcode",
+//   },
+//   touchAfter : 24 *3600,
   
-});
-store.on("error",() => {
-  console.log("ERROR in mongo session store",err);
-});
+// });
+// store.on("error",() => {
+//   console.log("ERROR in mongo session store",err);
+// });
+
 
 const sessionOptions = {
-  store,
-  secret : process.env.SECRET,
+  //store,
+  secret : "mysupersecretcode",
   resave : false,
   saveUninitialized : true,
   cookie : {
